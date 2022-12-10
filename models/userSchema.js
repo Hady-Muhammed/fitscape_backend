@@ -31,6 +31,9 @@ const userSchema = new Schema({
   liked: {
     type: Boolean
   },
+  avatar: {
+    type: String,
+  },
   createdAt: {
     type: String
   },
@@ -65,8 +68,9 @@ const validateUser = (user) => {
     password: joi.string().min(5).max(1024).required(),
     acceptTerms: joi.valid(true).required(),
     liked: joi.valid(false).required(),
+    avatar: joi.string(),
     createdAt: joi.string(),
-    workouts: joi.array()
+    workouts: joi.array(),
   });
 
   return schema.validate(user);

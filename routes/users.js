@@ -6,6 +6,8 @@ const bcrypt = require("bcrypt");
 const { Email, validateEmail } = require("../models/emailSchema");
 const { ObjectId } = require('mongodb');
 const mongoose = require("mongoose");
+const upload = require('../middlewares/upload')
+const fs = require('fs')
 
 // Registration API
 router.post("/", async (req, res) => {
@@ -39,7 +41,7 @@ router.post("/getUser", async (req,res) => {
   try {
     const {email , password} = req.body
     let user = await User.findOne({email})
-    return res.send({email: user.email , password: password})
+    return res.send({user})
   } catch (err) {
     console.log(err)
   }
@@ -78,6 +80,30 @@ router.post("/deleteUser", async (req,res) => {
   }
 })
 
+// updateUser API
+
+router.post('/updateUser' , async (req,res) => { 
+    try {
+      const {name,email,password} = req.body;
+      if(!password){
+        await User.findOneAndUpdate({email} , {
+          email,
+          name, 
+        })
+      } else {
+        const hashPassword = await bcrypt.hash(password,10);
+        await User.findOneAndUpdate({email} , {
+          email,
+          name, 
+          password: hashPassword
+        })
+      }
+      return res.send('User updated successfully!')
+    } catch (error) {
+        console.log(error)
+    }
+ })
+
 
 // getAllLikes API
 router.get('/alllikes' , async (req,res) => {
@@ -96,11 +122,12 @@ router.post("/contact", async (req,res) => {
     const {email , message} = req.body
     let user = await User.findOne({email})
     const date = new Date().toLocaleDateString('en-us', {  year:"numeric", month:"short", day:"numeric" }) + ' '  + new Date().toLocaleTimeString()
-
+    console.log(user)
     const validEmail = validateEmail({
       name: user.name,
       email: email,
       message: message,
+      avatar: user.avatar || 'default'
     })
     if(!validEmail)
       return res.send({error: 'data entered is wrong'})
@@ -109,7 +136,8 @@ router.post("/contact", async (req,res) => {
       name: user.name,
       email: email,
       message: message,
-      sentAt: date
+      sentAt: date,
+      avatar: user.avatar || 'default'
     }).save()
     
     return res.send({name: user.name , email: user.email , sentAt: date })
@@ -226,4 +254,44 @@ router.delete('/deleteRow', async(req , res) => {
     return res.status(404).send('Error: ', err.message)
   }
 })
+
+// get all user's workouts API
+router.get('/getAllWorkouts/:email' , async (req,res) => {
+  try {
+    const email = req.params.email;
+    const user = await User.findOne({email});
+    return res.send({workouts: user?.workouts})
+  } catch (error) {
+    return res.send({error})
+  }
+})
+
+// uploadImage API
+
+
+router.post('/uploadImg', upload.single('avatar') , async (req,res) => {
+  try {
+    const {filename} = req.file
+    const {email} = req.body
+    const user = await User.findOne({email})
+    user.avatar = filename;
+    await user.save()
+    return res.send({user})
+  } catch (error) {
+    return res.send({error})
+  } 
+})
+
+// getAvatar API
+
+router.get('/getAvatar/:email' , async (req,res) => { 
+  try {
+    const email = req.params.email
+    const user = await User.findOne({email});
+    return res.send({avatar: user.avatar})
+  } catch (err) {
+    return res.send({err})
+  }
+ })
+
 module.exports = router;

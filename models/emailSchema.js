@@ -9,6 +9,7 @@ const emailSchema = new Schema({
   email: String,
   message: String,
   sentAt: String,
+  avatar: String,
 });
 
 
@@ -19,6 +20,7 @@ const validateEmail = (email) => {
     name: joi.string().min(5).max(20).required(),
     email: joi.string().min(5).max(200).required().email(),
     message: joi.string().max(600).required(),
+    avatar: joi.string()
   });
 
   return schema.validate(email);
