@@ -31,8 +31,7 @@ router.get("/getExer/:name", async (req, res) => {
 router.post("/deleteExercise" , async (req , res) => {
     try {
         const {name} = req.body
-        const user = await Exer.findOne({name}).remove()
-        console.log(user)
+        await Exer.deleteOne({name})
         return res.send({message: 'deleted successfully!'})
     } catch (err) {
         console.log(err)
