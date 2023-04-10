@@ -32,7 +32,7 @@ const userSchema = new Schema({
     type: Boolean
   },
   avatar: {
-    type: String,
+    type: mongoose.Schema.Types.Mixed,
   },
   createdAt: {
     type: String

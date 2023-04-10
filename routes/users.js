@@ -268,12 +268,11 @@ router.get("/getAllWorkouts/:email", async (req, res) => {
 });
 
 // uploadImage API
-router.post("/uploadImg", upload.single("avatar"), async (req, res) => {
+router.post("/uploadImg", async (req, res) => {
   try {
-    const { filename } = req.file;
-    const { email } = req.body;
+    const { email, file } = req.body;
     const user = await User.findOne({ email });
-    user.avatar = filename;
+    user.avatar = file;
     await user.save();
     return res.send({ user });
   } catch (error) {
