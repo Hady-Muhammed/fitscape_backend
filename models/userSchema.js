@@ -29,37 +29,41 @@ const userSchema = new Schema({
     required: true,
   },
   liked: {
-    type: Boolean
+    type: Boolean,
   },
   avatar: {
     type: mongoose.Schema.Types.Mixed,
   },
   createdAt: {
-    type: String
+    type: String,
   },
-  workouts: [{
-    date: String,
-    rows: [{
-      id: mongoose.SchemaTypes.ObjectId,
-      exer: String,
-      set1: Number,
-      set2: Number,
-      set3: Number,
-      set4: Number,
-      rest: String,
-      weight: Number,
-    }]
-  }]
+  workouts: [
+    {
+      date: String,
+      rows: [
+        {
+          id: mongoose.SchemaTypes.ObjectId,
+          exerciseName: String,
+          set1: Number,
+          set2: Number,
+          set3: Number,
+          set4: Number,
+          rest: String,
+          weight: Number,
+        },
+      ],
+    },
+  ],
 });
 
-userSchema.methods.generateAuthToken = (email,password) => {
-  const token = jwt.sign({ email , password }, process.env.JWTPRIVATEKEY, {
+userSchema.methods.generateAuthToken = (email, password) => {
+  const token = jwt.sign({ email, password }, process.env.JWTPRIVATEKEY, {
     expiresIn: "7d",
   });
   return token;
 };
 
-const User = mongoose.model("User", userSchema, 'users');
+const User = mongoose.model("User", userSchema, "users");
 
 const validateUser = (user) => {
   const schema = joi.object({
@@ -76,5 +80,4 @@ const validateUser = (user) => {
   return schema.validate(user);
 };
 
-module.exports = {User, validateUser};
-
+module.exports = { User, validateUser };

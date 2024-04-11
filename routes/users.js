@@ -1,13 +1,8 @@
 const express = require("express");
-const jwt = require("jsonwebtoken");
 const { validateUser, User } = require("../models/userSchema");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const { Email, validateEmail } = require("../models/emailSchema");
-const { ObjectId } = require("mongodb");
-const mongoose = require("mongoose");
-const upload = require("../middlewares/upload");
-const fs = require("fs");
 
 // Registration API
 router.post("/", async (req, res) => {
@@ -55,6 +50,52 @@ router.get("/isLiked/:email", async (req, res) => {
     console.log(err);
   }
 });
+
+// getAllLikes API
+router.get("/alllikes", async (req, res) => {
+  try {
+    const users = await User.find({ liked: true });
+    return res.send({ likes: users.length });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// Get Recent Emails API
+router.get("/emails/:num", async (req, res) => {
+  const num = req.params.num;
+  const emails = await Email.find().sort({ _id: -1 }).limit(num);
+  return res.send({ emails });
+});
+
+// Get All Accounts API
+router.get("/accounts", async (req, res) => {
+  const users = await User.find();
+  return res.send({ users });
+});
+
+// get all user's workouts API
+router.get("/getAllWorkouts/:email", async (req, res) => {
+  try {
+    const email = req.params.email;
+    const user = await User.findOne({ email });
+    return res.send({ workouts: user?.workouts });
+  } catch (error) {
+    return res.send({ error });
+  }
+});
+
+// getAvatar API
+router.get("/getAvatar/:email", async (req, res) => {
+  try {
+    const email = req.params.email;
+    const user = await User.findOne({ email });
+    return res.send({ avatar: user.avatar });
+  } catch (err) {
+    return res.send({ message: err.message });
+  }
+});
+
 // Make the user like the app
 router.post("/like", async (req, res) => {
   try {
@@ -67,10 +108,10 @@ router.post("/like", async (req, res) => {
 });
 
 // deleteUser API
-router.delete("/deleteUser/:email", async (req, res) => {
+router.delete("/:id", async (req, res) => {
   try {
-    const email = req.params.email;
-    await User.findOneAndDelete({ email });
+    const id = req.params.id;
+    await User.findByIdAndDelete(id);
     return res.send({ message: "User deleted successfully!" });
   } catch (err) {
     console.log(err);
@@ -78,7 +119,7 @@ router.delete("/deleteUser/:email", async (req, res) => {
 });
 
 // updateUser API
-router.post("/updateUser", async (req, res) => {
+router.put("/", async (req, res) => {
   try {
     const { name, email, password } = req.body;
     if (!password) {
@@ -103,16 +144,6 @@ router.post("/updateUser", async (req, res) => {
     return res.send("User updated successfully!");
   } catch (error) {
     console.log(error);
-  }
-});
-
-// getAllLikes API
-router.get("/alllikes", async (req, res) => {
-  try {
-    const users = await User.find({ liked: true });
-    return res.send({ likes: users.length });
-  } catch (err) {
-    console.log(err);
   }
 });
 
@@ -152,121 +183,6 @@ router.post("/contact", async (req, res) => {
   }
 });
 
-// Get Recent Emails API
-router.get("/emails/:num", async (req, res) => {
-  const num = req.params.num;
-  const emails = await Email.find().sort({ _id: -1 }).limit(num);
-  return res.send({ emails });
-});
-
-// Get All Accounts API
-router.get("/accounts", async (req, res) => {
-  const users = await User.find();
-  return res.send({ users });
-});
-
-// createNewTable API
-router.post("/createTable", async (req, res) => {
-  try {
-    const { email, date } = req.body;
-    const user = await User.findOne({ email });
-    user.workouts.push({ date });
-    await user.save();
-    return res.send(user);
-  } catch (err) {
-    console.log(err);
-    return res.send({ message: err.message });
-  }
-});
-
-// getTable API
-router.get("/getTable", async (req, res) => {
-  try {
-    const { email, date } = req.query;
-    const user = await User.findOne({ email });
-    const workout = user.workouts.find((workout) => workout.date === date);
-    return res.send(workout);
-  } catch (err) {
-    console.log(err);
-    return res.send({ message: err.message });
-  }
-});
-
-// addRow API
-router.post("/addRow", async (req, res) => {
-  try {
-    const { email, date, exercise } = req.body;
-    const user = await User.findOne({ email });
-    const workout = user.workouts.find((workout) => workout.date === date);
-    workout.rows.push(exercise);
-    await user.save();
-    return res.send(user);
-  } catch (err) {
-    return res.status(404).send({ message: err.message });
-  }
-});
-
-// retrieveRow API
-router.get("/retrieveRow", async (req, res) => {
-  try {
-    const { email, date, id } = req.query;
-    const user = await User.findOne({ email });
-    const workout = user.workouts.find((workout) => workout.date === date);
-    const row = workout.rows.find((row) => row._id.toString() === id);
-    return res.send(row);
-  } catch (err) {
-    return res.send({ message: err.message });
-  }
-});
-
-// submitRow API
-router.put("/submitRow", async (req, res) => {
-  try {
-    const { email, date, id, editedExer } = req.body;
-    const user = await User.findOne({ email });
-    const workout = user.workouts.find((workout) => workout.date === date);
-    const row = workout.rows.find((row) => row._id.toString() === id);
-    console.log(row);
-    row.set1 = editedExer.set1;
-    row.set2 = editedExer.set2;
-    row.set3 = editedExer.set3;
-    row.set4 = editedExer.set4;
-    row.rest = editedExer.rest;
-    row.weight = editedExer.weight;
-    row.exer = editedExer.exer;
-    await user.save();
-    return res.send(user);
-  } catch (err) {
-    return res.status(404).send({ message: err.message });
-  }
-});
-
-// deleteRow API
-router.delete("/deleteRow", async (req, res) => {
-  try {
-    const { email, date, id } = req.body;
-    const user = await User.findOne({ email });
-    const workout = user.workouts.find((workout) => workout.date === date);
-    const rowIndex = workout.rows.findIndex((row) => row._id.toString() === id);
-    workout.rows.splice(rowIndex, 1);
-    await user.save();
-    return res.send(user);
-  } catch (err) {
-    return res.status(404).send({ message: err.message });
-  }
-});
-
-// get all user's workouts API
-router.get("/getAllWorkouts/:email", async (req, res) => {
-  try {
-    const email = req.params.email;
-    const user = await User.findOne({ email });
-    return res.send({ workouts: user?.workouts });
-  } catch (error) {
-    return res.send({ error });
-  }
-});
-
 // uploadImage API
 router.post("/uploadImg", async (req, res) => {
   try {
@@ -277,17 +193,6 @@ router.post("/uploadImg", async (req, res) => {
     return res.send({ user });
   } catch (error) {
     return res.send({ message: error.message });
-  }
-});
-
-// getAvatar API
-router.get("/getAvatar/:email", async (req, res) => {
-  try {
-    const email = req.params.email;
-    const user = await User.findOne({ email });
-    return res.send({ avatar: user.avatar });
-  } catch (err) {
-    return res.send({ message: err.message });
   }
 });
 
