@@ -1,66 +1,53 @@
 const express = require("express");
-const jwt = require("jsonwebtoken");
 const router = express.Router();
-const bcrypt = require("bcrypt");
-const { Champ } = require("../models/champSchema");
-const { User } = require("../models/userSchema");
 const { Exer } = require("../models/exerSchema");
 
-
-// Get all Exercises API
-router.get("/", async (req, res) => {
-    try {
-        const exers = await Exer.find()
-        return res.send({exers});
-    } catch (error) {
-        return res.send({error})
+router.get("/:id?", async (req, res) => {
+  try {
+    if (req.params.id) {
+      const id = req.params.id;
+      const exer = await Exer.findById(id);
+      return res.send({ exer });
     }
-});
-// Get an Exercise API
-router.get("/getExer/:name", async (req, res) => {
-    try {
-        const name = req.params.name
-        const exer = await Exer.findOne({name})
-        return res.send({exer})
-    } catch (error) {
-        return res.send({error})
-    }
+    const exers = await Exer.find();
+    return res.send({ exers });
+  } catch (error) {
+    return res.send({ error });
+  }
 });
 
-// deleteExer API
-router.post("/deleteExercise" , async (req , res) => {
-    try {
-        const {name} = req.body
-        await Exer.deleteOne({name})
-        return res.send({message: 'deleted successfully!'})
-    } catch (err) {
-        console.log(err)
-    }
-})
+router.delete("/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    await Exer.findByIdAndDelete({ _id: id });
+    return res.send({ message: "deleted successfully!" });
+  } catch (err) {
+    console.log(err);
+  }
+});
 
 // addExer API
-router.post("/addExercise" , async (req , res) => {
-    try {
-        const exer = new Exer({
-            ...req.body
-        })
-        await exer.save()
-        return res.send({message: 'Exer created successfully!'})
-    } catch (err) {
-        console.log(err)
-    }
-})
+router.post("/", async (req, res) => {
+  try {
+    const exer = new Exer({
+      ...req.body,
+    });
+    await exer.save();
+    return res.send({ message: "Exer created successfully!" });
+  } catch (err) {
+    console.log(err);
+  }
+});
 
-// updateExer API
-router.post('/updateExer/:name' , async (req,res) => {
-    try {
-        const name = req.params.name;
-        const updates = req.body;
-        const exer = await Exer.findOneAndUpdate({name} , updates )
-        return res.send({exer})
-    } catch (err) {
-        console.log(err)
-    }
-})
+router.put("/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const updates = req.body;
+    const exer = await Exer.findOneAndUpdate({ _id: id }, updates);
+    return res.send({ exer });
+  } catch (err) {
+    console.log(err);
+  }
+});
 
 module.exports = router;
