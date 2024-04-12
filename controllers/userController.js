@@ -1,5 +1,5 @@
-import { validateUser, User } from "../models/userSchema";
-import { Email, validateEmail } from "../models/emailSchema";
+import { validateUser, User } from "../models/userSchema.js";
+import { Email, validateEmail } from "../models/emailSchema.js";
 import { genSalt, hash } from "bcrypt";
 
 export async function registerUser(req, res) {

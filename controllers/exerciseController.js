@@ -1,4 +1,4 @@
-import { Exer } from "../models/exerSchema";
+import { Exer } from "../models/exerSchema.js";
 
 export async function getExerById(req, res) {
   try {

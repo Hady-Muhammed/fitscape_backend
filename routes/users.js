@@ -14,8 +14,9 @@ import {
   updateUser,
   sendEmail,
   uploadImage,
-} from "../controllers/userController";
-
+} from "../controllers/userController.js";
+import { verifyToken } from "../middlewares/authMiddleware.js";
+router.use(verifyToken);
 router.post("/", registerUser);
 router.get("/getUser/:email", getUser);
 router.get("/isLiked/:email", isLiked);

@@ -1,8 +1,5 @@
-const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
-const joi = require("joi");
-const passwordComplexity = require("joi-password-complexity");
-const Schema = mongoose.Schema;
+import { Schema as _Schema, model } from "mongoose";
+const Schema = _Schema;
 
 const exerSchema = new Schema({
   name: String,
@@ -11,10 +8,6 @@ const exerSchema = new Schema({
   vid: String,
 });
 
+const Exer = model("Exer", exerSchema, "exercises");
 
-const Exer = mongoose.model("Exer", exerSchema,'exercises');
-
-
-
-module.exports = {Exer};
-
+export { Exer };

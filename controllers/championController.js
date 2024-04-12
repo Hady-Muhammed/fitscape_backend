@@ -1,4 +1,4 @@
-import { Champ } from "../models/champSchema";
+import { Champ } from "../models/champSchema.js";
 
 export async function getChamp(req, res) {
   try {
