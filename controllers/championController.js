@@ -19,8 +19,8 @@ export async function getChamp(req, res) {
 
 export async function deleteChamp(req, res) {
   try {
-    const name = req.query.name;
-    const champ = await Champ.findOneAndDelete({ name });
+    const id = req.body.id;
+    const champ = await Champ.findByIdAndDelete(id);
     if (!champ) {
       return res.status(404).send({ error: "Champion not found" });
     }
@@ -45,9 +45,9 @@ export async function createChamp(req, res) {
 
 export async function updateChamp(req, res) {
   try {
-    const name = req.query.name;
+    const id = req.params.id;
     const updates = req.body;
-    const champ = await Champ.findOneAndUpdate({ name }, updates, {
+    const champ = await Champ.findByIdAndUpdate(id, updates, {
       new: true,
     });
     if (!champ) {

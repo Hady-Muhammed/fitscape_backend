@@ -25,6 +25,8 @@ export async function registerUser(req, res) {
 export async function getUser(req, res) {
   try {
     const email = req.params.email;
+    console.log(email);
+
     let user = await User.findOne({ email });
     return res.send({ user });
   } catch (err) {
@@ -140,7 +142,6 @@ export async function sendEmail(req, res) {
       }) +
       " " +
       new Date().toLocaleTimeString();
-    console.log(user);
     const validEmail = validateEmail({
       name: user.name,
       email: email,

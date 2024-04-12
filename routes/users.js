@@ -18,7 +18,7 @@ import {
 import { verifyToken } from "../middlewares/authMiddleware.js";
 router.use(verifyToken);
 router.post("/", registerUser);
-router.get("/getUser/:email", getUser);
+router.get("/:email?", getUser);
 router.get("/isLiked/:email", isLiked);
 router.get("/alllikes", getAllLikes);
 router.get("/emails/:num", getRecentEmails);

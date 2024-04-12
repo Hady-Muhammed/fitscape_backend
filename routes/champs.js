@@ -11,6 +11,6 @@ router.use(verifyToken);
 router.get("/", getChamp);
 router.delete("/", deleteChamp);
 router.post("/", createChamp);
-router.put("/", updateChamp);
+router.put("/:id", updateChamp);
 
 export default router;
