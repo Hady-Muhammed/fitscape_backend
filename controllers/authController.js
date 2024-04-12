@@ -1,5 +1,5 @@
-import { User } from "../models/userSchema";
-import { object, string } from "joi";
+import { User } from "../models/userSchema.js";
+import Joi from "joi";
 import { compare } from "bcrypt";
 
 export async function login(req, res) {
@@ -31,9 +31,9 @@ export async function login(req, res) {
 }
 
 const validateUser = (user) => {
-  const schema = object({
-    email: string().min(5).max(200).required().email(),
-    password: string().min(5).max(1024).required(),
+  const schema = Joi.object({
+    email: Joi.string().min(5).max(200).required().email(),
+    password: Joi.string().min(5).max(1024).required(),
   });
 
   return schema.validate(user);

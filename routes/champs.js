@@ -5,8 +5,9 @@ import {
   deleteChamp,
   createChamp,
   updateChamp,
-} from "../controllers/championController";
-
+} from "../controllers/championController.js";
+import { verifyToken } from "../middlewares/authMiddleware.js";
+router.use(verifyToken);
 router.get("/", getChamp);
 router.delete("/", deleteChamp);
 router.post("/", createChamp);

@@ -1,8 +1,12 @@
-const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
-const joi = require("joi");
-const passwordComplexity = require("joi-password-complexity");
-const Schema = mongoose.Schema;
+import { Schema as _Schema, SchemaTypes, model } from "mongoose";
+import jwt from "jsonwebtoken";
+
+const { sign } = jwt;
+
+import Joi from "joi";
+const { object, string, valid, array } = Joi;
+
+const Schema = _Schema;
 
 const userSchema = new Schema({
   name: {
@@ -32,7 +36,7 @@ const userSchema = new Schema({
     type: Boolean,
   },
   avatar: {
-    type: mongoose.Schema.Types.Mixed,
+    type: _Schema.Types.Mixed,
   },
   createdAt: {
     type: String,
@@ -42,7 +46,7 @@ const userSchema = new Schema({
       date: String,
       rows: [
         {
-          id: mongoose.SchemaTypes.ObjectId,
+          id: SchemaTypes.ObjectId,
           exerciseName: String,
           set1: Number,
           set2: Number,
@@ -57,27 +61,27 @@ const userSchema = new Schema({
 });
 
 userSchema.methods.generateAuthToken = (email, password) => {
-  const token = jwt.sign({ email, password }, process.env.JWTPRIVATEKEY, {
+  const token = sign({ email, password }, process.env.JWTPRIVATEKEY, {
     expiresIn: "7d",
   });
   return token;
 };
 
-const User = mongoose.model("User", userSchema, "users");
+const User = model("User", userSchema, "users");
 
 const validateUser = (user) => {
-  const schema = joi.object({
-    name: joi.string().min(5).max(20).required(),
-    email: joi.string().min(5).max(200).required().email(),
-    password: joi.string().min(5).max(1024).required(),
-    acceptTerms: joi.valid(true).required(),
-    liked: joi.valid(false).required(),
-    avatar: joi.string(),
-    createdAt: joi.string(),
-    workouts: joi.array(),
+  const schema = object({
+    name: string().min(5).max(20).required(),
+    email: string().min(5).max(200).required().email(),
+    password: string().min(5).max(1024).required(),
+    acceptTerms: valid(true).required(),
+    liked: valid(false).required(),
+    avatar: string(),
+    createdAt: string(),
+    workouts: array(),
   });
 
   return schema.validate(user);
 };
 
-module.exports = { User, validateUser };
+export { User, validateUser };

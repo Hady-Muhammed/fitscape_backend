@@ -1,8 +1,5 @@
-const mongoose = require("mongoose");
-const jwt = require("jsonwebtoken");
-const joi = require("joi");
-const passwordComplexity = require("joi-password-complexity");
-const Schema = mongoose.Schema;
+import { Schema as _Schema, model } from "mongoose";
+const Schema = _Schema;
 
 const champSchema = new Schema({
   name: String,
@@ -10,10 +7,6 @@ const champSchema = new Schema({
   img: String,
 });
 
+const Champ = model("Champ", champSchema, "champions");
 
-const Champ = mongoose.model("Champ", champSchema,'champions');
-
-
-
-module.exports = {Champ};
-
+export { Champ };

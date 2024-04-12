@@ -5,8 +5,9 @@ import {
   deleteExerById,
   addExer,
   updateExerById,
-} from "../controllers/exerciseController";
-
+} from "../controllers/exerciseController.js";
+import { verifyToken } from "../middlewares/authMiddleware.js";
+router.use(verifyToken);
 router.get("/:id?", getExerById);
 router.delete("/:id", deleteExerById);
 router.post("/", addExer);
