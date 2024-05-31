@@ -5,7 +5,8 @@ import { compare } from "bcrypt";
 export async function login(req, res) {
   try {
     const { error } = validateUser(req.body);
-    if (error) return res.status(400).send(error.details[0].message);
+    if (error)
+      return res.status(401).send({ message: error.details[0].message });
 
     let userExists = await User.findOne({ email: req.body.email });
     if (!userExists)
@@ -15,7 +16,7 @@ export async function login(req, res) {
       userExists?.password
     );
     if (!validPassword)
-      return res.status(401).send({ message: "Invalid email or password!" });
+      return res.status(401).send({ message: "Invalid password!" });
 
     const token = userExists.generateAuthToken(
       req.body.email,
