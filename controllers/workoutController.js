@@ -18,7 +18,7 @@ export async function getWorkout(req, res) {
     const { email, date } = req.query;
     const user = await User.findOne({ email });
     const workout = user.workouts.find((workout) => workout.date === date);
-    return res.send(workout);
+    return res.send(workout ? workout : {});
   } catch (err) {
     console.log(err);
     return res.send({ message: err.message });
