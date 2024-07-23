@@ -1,12 +1,18 @@
 import { User } from "../models/userSchema.js";
+import { Workout } from "../models/workoutSchema.js";
 
 export async function addWorkout(req, res) {
   try {
     const { email, date } = req.body;
     const user = await User.findOne({ email });
-    user.workouts.push({ date });
+    const workout = new Workout({
+      createdAt: date,
+      user: req.user.id,
+    });
+    user.workouts.push(workout._id);
     await user.save();
-    return res.send(user);
+    await workout.save();
+    return res.send(workout._id);
   } catch (err) {
     console.log(err);
     return res.send({ message: err.message });
@@ -15,9 +21,12 @@ export async function addWorkout(req, res) {
 
 export async function getWorkout(req, res) {
   try {
-    const { email, date } = req.query;
-    const user = await User.findOne({ email });
-    const workout = user.workouts.find((workout) => workout.date === date);
+    const { date } = req.query;
+    const workout = await Workout.findOne({ date, user: req.user.id });
+    if (!workout) {
+      return res.status(404).send({ message: "Workout not found!" });
+    }
+    workout.rows.sort((a, b) => a.order - b.order);
     return res.send(workout);
   } catch (err) {
     console.log(err);
@@ -27,12 +36,13 @@ export async function getWorkout(req, res) {
 
 export async function addRow(req, res) {
   try {
-    const { email, date, exercise } = req.body;
-    const user = await User.findOne({ email });
-    const workout = user.workouts.find((workout) => workout.date === date);
-    workout.rows.push(exercise);
-    await user.save();
-    return res.send(user);
+    const { id, exercise } = req.body;
+    const workout = await Workout.findById(id);
+    workout.rows.push({ ...exercise, order: workout.rows.length + 1 });
+    console.log(workout);
+
+    await workout.save();
+    return res.send(workout);
   } catch (err) {
     return res.status(404).send({ message: err.message });
   }
@@ -40,9 +50,8 @@ export async function addRow(req, res) {
 
 export async function updateRow(req, res) {
   try {
-    const { email, date, id, editedExer } = req.body;
-    const user = await User.findOne({ email });
-    const workout = user.workouts.find((workout) => workout.date === date);
+    const { date, id, editedExer } = req.body;
+    const workout = await Workout.findOne({ date, user: req.user.id });
     const row = workout.rows.find((row) => row._id.toString() === id);
     row.set1 = editedExer.set1;
     row.set2 = editedExer.set2;
@@ -51,8 +60,8 @@ export async function updateRow(req, res) {
     row.rest = editedExer.rest;
     row.weight = editedExer.weight;
     row.exerciseName = editedExer.exerciseName;
-    await user.save();
-    return res.send(user);
+    await workout.save();
+    return res.send(workout);
   } catch (err) {
     return res.status(404).send({ message: err.message });
   }
@@ -60,14 +69,48 @@ export async function updateRow(req, res) {
 
 export async function deleteRow(req, res) {
   try {
-    const { email, date, id } = req.body;
-    const user = await User.findOne({ email });
-    const workout = user.workouts.find((workout) => workout.date === date);
+    const { date, id } = req.body;
+    const workout = await Workout.findOne({ date, user: req.user.id });
     const rowIndex = workout.rows.findIndex((row) => row._id.toString() === id);
     workout.rows.splice(rowIndex, 1);
-    await user.save();
-    return res.send(user);
+    await workout.save();
+    return res.send(workout);
   } catch (err) {
     return res.status(404).send({ message: err.message });
+  }
+}
+
+export async function reorderRow(req, res) {
+  const { workoutId } = req.params;
+  const { firstRowId, secondRowId } = req.body.rows;
+  console.log(workoutId);
+
+  try {
+    const workout = await Workout.findById(workoutId);
+
+    if (!workout) {
+      return res.status(404).json({ message: "Workout not found" });
+    }
+
+    const firstRow = workout.rows.find(
+      (row) => row._id.toString() === firstRowId
+    );
+    const secondRow = workout.rows.find(
+      (row) => row._id.toString() === secondRowId
+    );
+
+    if (!firstRow || !secondRow) {
+      return res.status(404).json({ message: "One or both rows not found" });
+    }
+
+    // Swap the order of the two rows
+    const tempOrder = firstRow.order;
+    firstRow.order = secondRow.order;
+    secondRow.order = tempOrder;
+
+    await workout.save();
+    res.status(200).json(workout);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
   }
 }

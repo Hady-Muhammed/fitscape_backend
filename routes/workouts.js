@@ -6,6 +6,7 @@ import {
   getWorkout,
   addRow,
   updateRow,
+  reorderRow,
   deleteRow,
 } from "../controllers/workoutController.js";
 import { verifyToken } from "../middlewares/authMiddleware.js";
@@ -14,6 +15,7 @@ router.post("/", addWorkout);
 router.get("/", getWorkout);
 router.post("/rows", addRow);
 router.put("/rows", updateRow);
+router.put("/:workoutId/reorder", reorderRow);
 router.delete("/rows", deleteRow);
 
 export default router;

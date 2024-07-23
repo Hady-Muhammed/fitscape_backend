@@ -5,6 +5,7 @@ import { genSalt, hash } from "bcrypt";
 export async function registerUser(req, res) {
   try {
     const { error } = validateUser(req.body);
+
     if (error) return res.status(400).send(error.details[0].message);
 
     let userExists = await User.findOne({ email: req.body.email });
@@ -64,10 +65,15 @@ export async function getRecentEmails(req, res) {
 }
 
 export async function getAllAccounts(req, res) {
+  // console.log(req);
   try {
+    console.log("tsts");
     const users = await User.find();
+    console.log({ users });
+    console.log(typeof users);
     return res.send({ users });
   } catch (err) {
+    console.log("users");
     console.log(err);
   }
 }

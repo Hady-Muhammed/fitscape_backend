@@ -18,8 +18,8 @@ export async function login(req, res) {
       return res.status(401).send({ message: "Invalid email or password!" });
 
     const token = userExists.generateAuthToken(
-      req.body.email,
-      req.body.password
+      userExists?.email,
+      userExists?._id
     );
     return res
       .status(200)
