@@ -1,0 +1,11 @@
+version: "3"
+services:
+  fitscape-app:
+    container_name: fitscape-cont
+    build: .
+    volumes:
+      - ./src:/app/src:ro
+    ports:
+      - 1234:1234
+    env_file:
+      - ./.env

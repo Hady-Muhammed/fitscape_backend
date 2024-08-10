@@ -4,11 +4,11 @@ import express, { json } from "express";
 const app = express();
 import cors from "cors";
 import connection from "./db.js";
-import usersRoutes from "./routes/users.js";
-import authRoutes from "./routes/auth.js";
-import champsRoutes from "./routes/champs.js";
-import exersRoutes from "./routes/exers.js";
-import workoutsRoutes from "./routes/workouts.js";
+import usersRoutes from "./src/routes/users.js";
+import authRoutes from "./src/routes/auth.js";
+import champsRoutes from "./src/routes/champs.js";
+import exersRoutes from "./src/routes/exers.js";
+import workoutsRoutes from "./src/routes/workouts.js";
 dotenv.config();
 // connect to DB
 connection();
@@ -22,6 +22,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/champs", champsRoutes);
 app.use("/api/exercises", exersRoutes);
 app.use("/api/workouts", workoutsRoutes);
+app.get("/", (req, res) => res.send("<h1>Hello World! asdsd</h1>"));
 
 const port = process.env.PORT || 1234;
 

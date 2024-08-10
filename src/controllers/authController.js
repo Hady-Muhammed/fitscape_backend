@@ -1,6 +1,6 @@
+import argon2 from "argon2";
 import { User } from "../models/userSchema.js";
 import Joi from "joi";
-import { compare } from "bcrypt";
 
 export async function login(req, res) {
   try {
@@ -11,7 +11,7 @@ export async function login(req, res) {
     let userExists = await User.findOne({ email: req.body.email });
     if (!userExists)
       return res.status(401).send({ message: "Invalid email or password!" });
-    const validPassword = await compare(
+    const validPassword = await argon2.verify(
       req.body.password,
       userExists?.password
     );
