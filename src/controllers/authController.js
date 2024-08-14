@@ -12,8 +12,8 @@ export async function login(req, res) {
     if (!userExists)
       return res.status(401).send({ message: "Invalid email or password!" });
     const validPassword = await argon2.verify(
-      req.body.password,
-      userExists?.password
+      userExists?.password,
+      req.body.password
     );
     if (!validPassword)
       return res.status(401).send({ message: "Invalid password!" });

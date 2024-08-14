@@ -12,8 +12,7 @@ export async function registerUser(req, res) {
     if (userExists)
       return res.status(409).send({ message: "That user already exists!" });
 
-    // const salt = await genSalt(Number(process.env.SALT));
-    const hashPassword = await argon2.hash(req.body.password, salt);
+    const hashPassword = await argon2.hash(req.body.password, process.env.SALT);
     const user = new User({ ...req.body, password: hashPassword });
     await user.save();
     res.status(201).send({ message: "User created successfully" });
