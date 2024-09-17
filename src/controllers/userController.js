@@ -129,7 +129,7 @@ export async function updateUser(req, res) {
         { email, name, password: hashPassword }
       );
     }
-    return res.send("User updated successfully!");
+    return res.send({ message: "User updated successfully!" });
   } catch (error) {
     console.log(error);
   }
