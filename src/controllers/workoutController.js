@@ -54,7 +54,10 @@ export async function addRow(req, res) {
 export async function updateRow(req, res) {
   try {
     const { date, id, editedExer } = req.body;
-    const workout = await Workout.findOne({ date, user: req.user.id });
+    const workout = await Workout.findOne({
+      createdAt: date,
+      user: req.user.id,
+    });
     const row = workout.rows.find((row) => row._id.toString() === id);
     row.set1 = editedExer.set1;
     row.set2 = editedExer.set2;
@@ -73,7 +76,10 @@ export async function updateRow(req, res) {
 export async function deleteRow(req, res) {
   try {
     const { date, id } = req.body;
-    const workout = await Workout.findOne({ date, user: req.user.id });
+    const workout = await Workout.findOne({
+      createdAt: date,
+      user: req.user.id,
+    });
     const rowIndex = workout.rows.findIndex((row) => row._id.toString() === id);
     workout.rows.splice(rowIndex, 1);
     await workout.save();
