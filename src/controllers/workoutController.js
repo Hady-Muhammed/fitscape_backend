@@ -12,7 +12,7 @@ export async function addWorkout(req, res) {
     user.workouts.push(workout._id);
     await user.save();
     await workout.save();
-    return res.send(workout._id);
+    return res.send(workout);
   } catch (err) {
     console.log(err);
     return res.send({ message: err.message });
@@ -22,7 +22,10 @@ export async function addWorkout(req, res) {
 export async function getWorkout(req, res) {
   try {
     const { date } = req.query;
-    const workout = await Workout.findOne({ date, user: req.user.id });
+    const workout = await Workout.findOne({
+      createdAt: date,
+      user: req.user.id,
+    });
     if (!workout) {
       return res.status(404).send({ message: "Workout not found!" });
     }
