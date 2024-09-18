@@ -4,27 +4,41 @@ import Joi from "joi";
 
 export async function login(req, res) {
   try {
-    const { error } = validateUser(req.body);
-    if (error)
-      return res.status(401).send({ message: error.details[0].message });
+    if (req?.body?.thirdPartyAuthentication) {
+      let userExists = await User.findOne({ email: req.body.email });
+      if (!userExists)
+        return res.status(401).send({
+          message: `Please sign up with ${req?.body?.thirdPartyAuthentication} first!`,
+        });
+      const token = userExists.generateAuthToken(
+        userExists?.email,
+        userExists?._id
+      );
+      return res
+        .status(200)
+        .send({ token: token, message: "Logged in successfully" });
+    } else {
+      const { error } = validateUser(req.body);
+      if (error)
+        return res.status(401).send({ message: error.details[0].message });
+      let userExists = await User.findOne({ email: req.body.email });
+      if (!userExists)
+        return res.status(401).send({ message: "Invalid email or password!" });
+      const validPassword = await argon2.verify(
+        userExists?.password,
+        req.body.password
+      );
+      if (!validPassword)
+        return res.status(401).send({ message: "Invalid password!" });
 
-    let userExists = await User.findOne({ email: req.body.email });
-    if (!userExists)
-      return res.status(401).send({ message: "Invalid email or password!" });
-    const validPassword = await argon2.verify(
-      userExists?.password,
-      req.body.password
-    );
-    if (!validPassword)
-      return res.status(401).send({ message: "Invalid password!" });
-
-    const token = userExists.generateAuthToken(
-      userExists?.email,
-      userExists?._id
-    );
-    return res
-      .status(200)
-      .send({ token: token, message: "Logged in successfully" });
+      const token = userExists.generateAuthToken(
+        userExists?.email,
+        userExists?._id
+      );
+      return res
+        .status(200)
+        .send({ token: token, message: "Logged in successfully" });
+    }
   } catch (err) {
     console.error(err);
     res.status(500).send({ message: "Internal server error" });

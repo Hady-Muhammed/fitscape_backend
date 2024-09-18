@@ -11,9 +11,16 @@ export async function registerUser(req, res) {
     let userExists = await User.findOne({ email: req.body.email });
     if (userExists)
       return res.status(409).send({ message: "That user already exists!" });
-
-    const hashPassword = await argon2.hash(req.body.password, process.env.SALT);
-    const user = new User({ ...req.body, password: hashPassword });
+    let user = {};
+    if (req?.body?.thirdPartyAuthentication) {
+      user = new User({ ...req.body });
+    } else {
+      const hashPassword = await argon2.hash(
+        req.body.password,
+        process.env.SALT
+      );
+      user = new User({ ...req.body, password: hashPassword });
+    }
     await user.save();
     res.status(201).send({ message: "User created successfully" });
   } catch (err) {
