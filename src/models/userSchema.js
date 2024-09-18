@@ -14,6 +14,9 @@ const userSchema = new Schema({
     minlength: 5,
     maxlength: 20,
   },
+  thirdPartyAuthentication: {
+    type: String,
+  },
   email: {
     type: String,
     required: true,
@@ -55,6 +58,7 @@ const User = model("User", userSchema, "users");
 const validateUser = (user) => {
   const schema = Joi.object({
     name: Joi.string().min(5).max(20).required(),
+    thirdPartyAuthentication: Joi.string(),
     email: Joi.string().min(5).max(200).required().email(),
     password: Joi.string().min(5).max(1024).required(),
     acceptTerms: Joi.valid(true).required(),
